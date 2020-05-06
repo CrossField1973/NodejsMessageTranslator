@@ -1,6 +1,8 @@
 version: "3.3"
 services:
   telegram_translator:
+    env_file:
+      - ".env"
     build: .
     labels:
       - "traefik.enable=true"
