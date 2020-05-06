@@ -1,0 +1,6 @@
+version: "3.8"
+services:
+  telegram_translator:
+    build: .
+    ports:
+      - "9001:443"
