@@ -2,5 +2,22 @@ version: "3.8"
 services:
   telegram_translator:
     build: .
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`translator.localhost`)"
+      - "traefik.http.routers.whoami.entrypoints=web"
     ports:
-      - "9001:443"
+      - "80:443"
+  traefik:
+    image: traefik
+    container_name: "traefik"
+    ports:
+      - "9001:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:9001"
