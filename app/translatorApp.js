@@ -2,18 +2,36 @@ var http = require('http');
 var mysql = require('mysql');
 var LanguageTranslatorV3 = require('ibm-watson/language-translator/v3');
 const { IamAuthenticator } = require('ibm-watson/auth');
+var con = mysql.createConnection({host: "localhost", user: process.env.MYSQL_USER, password: process.env.MYSQL_PASSWORD, database: "ttranslate"});
 
 function getUserSettings(telegram_id){
-  //return object with at least obj.input, obj.output
-  return {input: "de", output: "en"};
+  con.connect(function(err) {
+    if (err) throw err;
+    con.query("SELECT input, output FROM users WHERE telegram_id='"+telegram_id+"';", function (err, result, fields) {
+      if (err) throw err;
+      return {input: result[0].input, output: result[0].output};
+    });
+  });
 }
 
 function setUserInputLanguage(telegram_id, input){
-  //use languages.js to get input language before writing to db
+  con.connect(function(err) {
+    if (err) throw err;
+    con.query("UPDATE users SET input='"+input+"' WHERE telegram_id='"+telegram_id+"';", function (err, result, fields) {
+      if (err) throw err;
+      console.log(result);
+    });
+  });
 }
 
 function setUserOutputLanguage(telegram_id, output){
-  //use languages.js to get input language before writing to db
+  con.connect(function(err) {
+    if (err) throw err;
+    con.query("UPDATE users SET output='"+output+"' WHERE telegram_id='"+telegram_id+"';", function (err, result, fields) {
+      if (err) throw err;
+      console.log(result);
+    });
+  });
 }
 
 function translate(text, input, output, chat_id){
