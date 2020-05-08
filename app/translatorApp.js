@@ -9,7 +9,12 @@ var server = http.createServer(function (request, response) {
 		request.on('end', () => {
 			try {
 				var obj = JSON.parse(body);
-				console.log(obj.message.text);
+				var text = obj.message.text;
+        text.split(" ");
+        if(text[0] === '/echo'){
+          text.shift;
+          console.log(text.join(" "));
+        }
 			} catch(err) {
 				console.log('no JSON');
 			}
