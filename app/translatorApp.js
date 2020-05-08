@@ -30,7 +30,7 @@ languageTranslator.translate(
     target: output
   })
   .then(response => {
-    translated = JSON.stringify(response.result, null, 2);
+    translated = response.result.translations[0].translation;
     return translated;
   })
   .catch(err => {
