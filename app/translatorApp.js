@@ -1,5 +1,7 @@
 var http = require('http');
 var mysql = require('mysql');
+var LanguageTranslatorV3 = require('ibm-watson/language-translator/v3');
+const { IamAuthenticator } = require('ibm-watson/auth');
 
 function getUserSettings(telegram_id){
   //return object with at least obj.input, obj.output
@@ -14,7 +16,25 @@ function setUserOutputLanguage(telegram_id, output){
 }
 
 function translate(text, input, output){
-  //use translate.js to translate text
+  var languageTranslator = new LanguageTranslatorV3({
+  authenticator: new IamAuthenticator({ apikey: process.env.WATSON_API_KEY }),
+  url: 'https://api.eu-de.language-translator.watson.cloud.ibm.com/instances/'+process.env.WATSON_INSTANCE,
+  version: '2018-05-01',
+});
+
+languageTranslator.translate(
+  {
+    text: text,
+    source: input,
+    target: output
+  })
+  .then(response => {
+    translated = JSON.stringify(response.result, null, 2);
+    return translated;
+  })
+  .catch(err => {
+    console.log('error: ', err);
+  });
 }
 
 function handleTranslationOrder(text, chat_id, telegram_id){
