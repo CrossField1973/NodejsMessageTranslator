@@ -16,7 +16,7 @@ function setUserOutputLanguage(telegram_id, output){
   //use languages.js to get input language before writing to db
 }
 
-function translate(text, input, output){
+function translate(text, input, output, chat_id){
   var languageTranslator = new LanguageTranslatorV3({
   authenticator: new IamAuthenticator({ apikey: process.env.WATSON_API_KEY }),
   url: 'https://api.eu-de.language-translator.watson.cloud.ibm.com/instances/'+process.env.WATSON_INSTANCE,
@@ -31,7 +31,7 @@ languageTranslator.translate(
   })
   .then(response => {
     translated = response.result.translations[0].translation;
-    return translated;
+    sendMessage(chat_id, translated);
   })
   .catch(err => {
     console.log('error: ', err);
@@ -40,7 +40,7 @@ languageTranslator.translate(
 
 function handleTranslationOrder(text, chat_id, telegram_id){
   userSettings = getUserSettings(telegram_id);
-  sendMessage(chat_id, translate(text, userSettings.input, userSettings.output));
+  translate(text, userSettings.input, userSettings.output, chat_id);
 }
 
 function sendMessage(chat_id, message){
