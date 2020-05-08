@@ -1,18 +1,22 @@
-const TelegramBot = require('node-telegram-bot-api');
+var http = require('http');
 
-const token = process.env.TELEGRAM_BOT_TOKEN;
-
-const bot = new TelegramBot(token, {polling: true});
-
-// Matches "/echo [whatever]"
-bot.onText(/\/echo (.+)/, (msg, match) => {
-  // 'msg' is the received Message from Telegram
-  // 'match' is the result of executing the regexp above on the text content
-  // of the message
-
-  const chatId = msg.chat.id;
-  const resp = match[1]; // the captured "whatever"
-
-  // send back the matched "whatever" to the chat
-  bot.sendMessage(chatId, resp);
+var server = http.createServer(function (request, response) {
+	if(request.method === 'POST'){
+		let body = '';
+		request.on('data', chunk => {
+			body += chunk.toString();
+		});
+		request.on('end', () => {
+			try {
+				var obj = JSON.parse(body);
+				console.log(obj.message.text);
+			} catch(err) {
+				console.log('no JSON');
+			}
+		});
+	}
+	response.writeHead(200, {"Content-Type": "text/plain"});
+	response.end("OK");
 });
+
+server.listen(443);
