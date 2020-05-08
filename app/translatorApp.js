@@ -5,6 +5,7 @@ const { IamAuthenticator } = require('ibm-watson/auth');
 
 function getUserSettings(telegram_id){
   //return object with at least obj.input, obj.output
+  return {input: "de", output: "en"};
 }
 
 function setUserInputLanguage(telegram_id, input){
