@@ -40,7 +40,7 @@ languageTranslator.translate(
 
 function handleTranslationOrder(text, chat_id, telegram_id){
   userSettings = getUserSettings(telegram_id);
-  sendMessage(chat_id, translate(text, userSettings.input, serSettings.output));
+  sendMessage(chat_id, translate(text, userSettings.input, userSettings.output));
 }
 
 function sendMessage(chat_id, message){
