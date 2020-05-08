@@ -1,5 +1,12 @@
 version: "3.3"
 services:
+  db:
+    image: mysql
+    volumes:
+     - db_data:/var/lib/mysql
+    env_file:
+      - ".env"
+    restart: unless-stopped
   telegram_translator:
     restart: unless-stopped
     env_file:
@@ -11,6 +18,8 @@ services:
       - "traefik.http.routers.telegramtranslator.entrypoints=websecure"
       - "traefik.http.routers.telegramtranslator.tls.certresolver=myhttpchallenge"
       - "traefik.http.services.telegramtranslator.loadbalancer.server.port=443"
+    depends_on:
+       - db
   traefik:
     image: traefik
     container_name: "traefik"
