@@ -2,7 +2,7 @@ var http = require('http');
 var mysql = require('mysql');
 var LanguageTranslatorV3 = require('ibm-watson/language-translator/v3');
 const { IamAuthenticator } = require('ibm-watson/auth');
-var con = mysql.createConnection({host: "db", user: process.env.MYSQL_USER, password: process.env.MYSQL_PASSWORD, database: "ttranslate"});
+var con = mysql.createConnection({host: "db", user: process.env.MYSQL_USER, password: process.env.MYSQL_PASSWORD, database: "ttranslate", insecureAuth: true});
 
 function getUserSettings(telegram_id){
   con.connect(function(err) {
