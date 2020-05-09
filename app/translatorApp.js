@@ -98,6 +98,8 @@ var server = http.createServer(function (request, response) {
     sendMessage(chatID, message);
         }else if(text[0] == "/start"){
           createUser(userID);
+        }else if(text[0] == "/languages"){
+          sendMessage(chatID, "de - Deutsch\nen - English\nsv - Svenska\nno - Norsk\nja - Japanese\nda - Dansk\n");
         }else if(text[0] == "/input"){
           setUserInputLanguage(userID, text[1]);
         }else if(text[0] == "/output"){
