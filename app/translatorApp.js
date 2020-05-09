@@ -2,7 +2,30 @@ var http = require('http');
 var mysql = require('mysql');
 var LanguageTranslatorV3 = require('ibm-watson/language-translator/v3');
 const { IamAuthenticator } = require('ibm-watson/auth');
-var con = mysql.createConnection({host: "db", user: process.env.MYSQL_USER, password: process.env.MYSQL_PASSWORD, database: "ttranslate", insecureAuth: true});
+var con = mysql.createConnection({host: "db", user: 'root', password: process.env.MYSQL_ROOT_PASSWORD, database: "ttranslate"});
+
+function getTime(){
+  return Math.floor(new Date().getTime() / 1000);
+}
+function userExists(telegram_id){
+  con.connect(function(err) {
+    if (err) throw err;
+    con.query("SELECT telegram_id FROM users WHERE telegram_id='"+telegram_id+"';", function (err, result, fields) {
+      if (err) throw err;
+      return result.length==1;
+    });
+  });
+}
+
+function createUser(telegram_id){
+  con.connect(function(err) {
+    if (err) throw err;
+    time = getTime();
+    con.query("INSERT INTO users (telegram_id, input, output, created_at, updated_at) VALUES('"+telegram_id+"', 'de', 'en', '"+time+"', '"+time+"');", function (err, result, fields) {
+      if (err) throw err;
+    });
+  });
+}
 
 function getUserSettings(telegram_id){
   con.connect(function(err) {
@@ -87,6 +110,8 @@ var server = http.createServer(function (request, response) {
     message = text.join(text.shift());
     console.log(message);
     sendMessage(chatID, message);
+        }else if(text[0] == "/start"){
+          createUser(userID);
         }else if(text[0] == "/input"){
           setUserInputLanguage(userID, text[1]);
         }else if(text[0] == "/output"){
