@@ -27,12 +27,12 @@ function createUser(telegram_id){
   });
 }
 
-function getUserSettings(telegram_id){
+function getUserSettings(telegram_id, text, chat_id){
   con.connect(function(err) {
     if (err) throw err;
     con.query("SELECT input, output FROM users WHERE telegram_id='"+telegram_id+"';", function (err, result, fields) {
       if (err) throw err;
-      return {input: result[0].input, output: result[0].output};
+      translate(text, result[0].input, result[0].output, chat_id);
     });
   });
 }
@@ -42,7 +42,6 @@ function setUserInputLanguage(telegram_id, input){
     if (err) throw err;
     con.query("UPDATE users SET input='"+input+"' WHERE telegram_id='"+telegram_id+"';", function (err, result, fields) {
       if (err) throw err;
-      console.log(result);
     });
   });
 }
@@ -52,7 +51,6 @@ function setUserOutputLanguage(telegram_id, output){
     if (err) throw err;
     con.query("UPDATE users SET output='"+output+"' WHERE telegram_id='"+telegram_id+"';", function (err, result, fields) {
       if (err) throw err;
-      console.log(result);
     });
   });
 }
@@ -80,8 +78,7 @@ languageTranslator.translate(
 }
 
 function handleTranslationOrder(text, chat_id, telegram_id){
-  userSettings = getUserSettings(telegram_id);
-  translate(text, userSettings.input, userSettings.output, chat_id);
+  getUserSettings(telegram_id, text, chat_id);
 }
 
 function sendMessage(chat_id, message){
