@@ -3,66 +3,55 @@ var mysql = require('mysql');
 var LanguageTranslatorV3 = require('ibm-watson/language-translator/v3');
 const { IamAuthenticator } = require('ibm-watson/auth');
 var con = mysql.createConnection({host: "db", user: 'root', password: process.env.MYSQL_ROOT_PASSWORD, database: "ttranslate"});
+con.connect(function(err) {
+  if (err) throw err;
+});
 
 function getTime(){
   return Math.floor(new Date().getTime() / 1000);
 }
+
 function userExists(telegram_id){
-  con.connect(function(err) {
+  con.query("SELECT telegram_id FROM users WHERE telegram_id='"+telegram_id+"';", function (err, result, fields) {
     if (err) throw err;
-    con.query("SELECT telegram_id FROM users WHERE telegram_id='"+telegram_id+"';", function (err, result, fields) {
-      if (err) throw err;
-      return result.length==1;
-    });
+    return result.length==1;
   });
 }
 
 function createUser(telegram_id){
-  con.connect(function(err) {
+  time = getTime();
+  con.query("INSERT INTO users (telegram_id, input, output, created_at, updated_at) VALUES('"+telegram_id+"', 'de', 'en', '"+time+"', '"+time+"');", function (err, result, fields) {
     if (err) throw err;
-    time = getTime();
-    con.query("INSERT INTO users (telegram_id, input, output, created_at, updated_at) VALUES('"+telegram_id+"', 'de', 'en', '"+time+"', '"+time+"');", function (err, result, fields) {
-      if (err) throw err;
-    });
   });
 }
 
 function getUserSettings(telegram_id, text, chat_id){
-  con.connect(function(err) {
+  con.query("SELECT input, output FROM users WHERE telegram_id='"+telegram_id+"';", function (err, result, fields) {
     if (err) throw err;
-    con.query("SELECT input, output FROM users WHERE telegram_id='"+telegram_id+"';", function (err, result, fields) {
-      if (err) throw err;
-      translate(text, result[0].input, result[0].output, chat_id);
-    });
+    translate(text, result[0].input, result[0].output, chat_id);
   });
 }
 
 function setUserInputLanguage(telegram_id, input){
-  con.connect(function(err) {
+  con.query("UPDATE users SET input='"+input+"' WHERE telegram_id='"+telegram_id+"';", function (err, result, fields) {
     if (err) throw err;
-    con.query("UPDATE users SET input='"+input+"' WHERE telegram_id='"+telegram_id+"';", function (err, result, fields) {
-      if (err) throw err;
-    });
   });
 }
 
 function setUserOutputLanguage(telegram_id, output){
-  con.connect(function(err) {
+  con.query("UPDATE users SET output='"+output+"' WHERE telegram_id='"+telegram_id+"';", function (err, result, fields) {
     if (err) throw err;
-    con.query("UPDATE users SET output='"+output+"' WHERE telegram_id='"+telegram_id+"';", function (err, result, fields) {
-      if (err) throw err;
-    });
   });
 }
 
 function translate(text, input, output, chat_id){
   var languageTranslator = new LanguageTranslatorV3({
-  authenticator: new IamAuthenticator({ apikey: process.env.WATSON_API_KEY }),
-  url: 'https://api.eu-de.language-translator.watson.cloud.ibm.com/instances/'+process.env.WATSON_INSTANCE,
-  version: '2018-05-01',
-});
+    authenticator: new IamAuthenticator({ apikey: process.env.WATSON_API_KEY }),
+    url: 'https://api.eu-de.language-translator.watson.cloud.ibm.com/instances/'+process.env.WATSON_INSTANCE,
+    version: '2018-05-01',
+  });
 
-languageTranslator.translate(
+  languageTranslator.translate(
   {
     text: text,
     source: input,
